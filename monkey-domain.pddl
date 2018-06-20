@@ -9,77 +9,99 @@
   (:predicates
     (AT ?obj ?pos)
     (ON ?obj ?obj2)
-    (MOVE-TO ?pos ?pos)
-    (PUSH-BOX ?pos ?pos2)
-    (CLIMB-BOX ?pos)
-    (GO-DOWN ?pos)
-    (GRAB-BANANA ?pos)
-	(HAS-BANANA)
-    (ON-FLOOR)
+    (MOVE-FROM-TO ?obj ?pos ?pos2)
+    (PUSH ?obj ?obj2 ?pos ?pos2)
+    (CLIMB ?obj ?obj2 ?pos)
+    (GO-DOWN ?obj ?obj2 ?pos)
+    (GRAB ?obj ?obj2 ?pos)
+	(HOLDING ?obj ?obj2)
+    (ON-FLOOR ?obj)
+    (ON-TOP ?obj)
   )
 
-  (:action MOVE-TO
+  (:action MOVE-FROM-TO
   	:parameters
-  		 (?pos - POSITION
-  		  ?pos2 - POSITION)
+  		 (?obj - MONKEY
+  		  ?pos - POSITION
+  		  ?pos2 - POSITION
+  		  )
   	:precondition
-  		(and 	(ON-FLOOR)
-  			(AT MONKEY ?pos))
+  		(and 	(ON-FLOOR ?obj)
+  		 (AT ?obj ?pos))
   	:effect
-  		(and 	(NOT (AT MONKEY ?pos))
-  			(AT MONKEY ?pos2))
+  		(and
+  			(NOT (AT ?obj ?pos))
+  			(AT ?obj ?pos2)
+        )
     )
 
-    (:action PUSH-BOX
+    (:action PUSH
             :parameters
-            		(?pos - POSITION
+            		(?obj - MONKEY
+            		?obj2 - BOX
+            		?pos - POSITION
                  ?pos2 - POSITION)
             :precondition
-            		(and 	(ON-FLOOR)
-                (AT MONKEY ?pos)
-            		(AT BOX ?pos))
+            		(and 	(ON-FLOOR ?obj)
+            		(ON-FLOOR ?obj2)
+                    (AT ?obj ?pos)
+            		(AT ?obj2 ?pos))
             :effect
             		(and
-            		(NOT (AT MONKEY ?pos))
-            		(NOT (AT BOX ?pos))
-            		(AT MONKEY ?pos2)
-            		(AT BOX ?pos2))
+            		(NOT (AT ?obj ?pos))
+            		(NOT (AT ?obj2 ?pos))
+            		(AT ?obj ?pos2)
+            		(AT ?obj2 ?pos2))
       )
 
-    (:action CLIMB-BOX
+    (:action CLIMB
         :parameters
-        		(?pos - POSITION)
+        		(   ?obj - MONKEY
+        		    ?obj2 - BOX
+        		    ?pos - POSITION)
         :precondition
-        		(and 	(ON-FLOOR)
-            (AT MONKEY ?pos)
-        		(AT BOX ?pos)
-        		(NOT (ON MONKEY BOX)))
+        		(and 	(ON-FLOOR ?obj)
+                (AT ?obj ?pos)
+        		(AT ?obj2 ?pos)
+        		(NOT (ON ?obj ?obj2)))
         :effect
-        		(and 	(NOT (ON-FLOOR))
-        		(ON MONKEY BOX))
+        		(and 	(NOT (ON-FLOOR ?obj))
+        		(ON-TOP ?obj)
+        		(ON ?obj ?obj2))
     )
 
     (:action GO-DOWN
             :parameters
-              (?pos - POSITION)
+              (?obj - MONKEY
+               ?obj2 - BOX
+               ?pos - POSITION)
             :precondition
-              (and 	(ON MONKEY BOX)
-              (AT BOX ?pos))
+              (and 	(ON ?obj ?obj2)
+               (ON-TOP ?obj)
+               (AT ?obj ?pos)
+               (AT ?obj2 ?pos))
             :effect
-              (and 	(NOT (ON MONKEY BOX))
-              (ON-FLOOR)
-              (AT MONKEY ?pos))
-      )
+              (and 	(NOT (ON ?obj ?obj2))
+              (NOT (ON-TOP ?obj))
+              (ON-FLOOR ?obj)
+              (AT ?obj ?pos)
+      ))
 
-      (:action GRAB-BANANA
+      (:action GRAB
             :parameters
-                (?pos - POSITION)
+                (?pos - POSITION
+				 ?obj - MONKEY
+				 ?obj2 - BANANA)
             :precondition
-                (and 	(ON MONKEY BOX)
-                (AT MONKEY ?pos)
-                (AT BOX ?pos)
-                (AT BANANA ?pos))
+                (and 
+                ;;monkey and banana must be on the same height
+                (or (and (ON-TOP ?obj) (ON-TOP ?obj2))
+                (and(ON-FLOOR ?obj) (ON-FLOOR ?obj2)))
+                (AT ?obj ?pos)
+				(AT ?obj2 ?pos)
+				)
+				
             :effect
-              (and 	(HAS-BANANA))
+              (and 	(HOLDING ?obj ?obj2))
       )
 )

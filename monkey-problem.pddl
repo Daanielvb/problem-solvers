@@ -6,24 +6,24 @@
         positionA - POSITION
         positionB - POSITION
         positionC - POSITION
-        positionD - POSITION
-        positionE - POSITION
         monkey - MONKEY
         box - BOX
-        banana - banana
+        banana - BANANA
     )
     (:init
       (AT monkey positionA)
       (AT box positionB)
-      (AT box positionD)
-      (AT banana positionB)
-      (AT banana positionE)
-      (ON-FLOOR)
+      (AT banana positionC)
+      (ON-FLOOR monkey)
+      (ON-FLOOR box)
+      (ON-TOP banana)
     )
     (:goal
       (and
   	      (AT monkey positionA)
-          (HAS-BANANA)
+  	      (ON-FLOOR monkey)
+  	      (HOLDING monkey banana)
+  	      
       )
     )
 )
